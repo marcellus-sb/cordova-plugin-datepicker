@@ -140,14 +140,14 @@
 - (void)jsCancel {
   NSLog(@"JS Cancel is going to be executed");
   NSString* jsCallback = [NSString stringWithFormat:@"datePicker._dateSelectionCanceled();"];
-  [super writeJavascript:jsCallback];
+  [self.commandDelegate evalJs:jsCallback];
 }
 
 - (void)jsDateSelected {
   NSTimeInterval seconds = [self.datePicker.date timeIntervalSince1970];
   NSString* jsCallback = [NSString stringWithFormat:@"datePicker._dateSelected(\"%f\");", seconds];
   //NSLog(jsCallback);
-  [super writeJavascript:jsCallback];
+  [self.commandDelegate evalJs:jsCallback];
 }
 
 
@@ -166,10 +166,17 @@
   UIView *datePickerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, pickerViewWidth, pickerViewHeight)];
   
   CGRect frame = CGRectMake(0, 0, 0, 0);
-  if(!self.datePicker){
-    self.datePicker = [self createDatePicker:options frame:frame];
-    [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:UIControlEventValueChanged];
+  
+  if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+      self.datePicker = [self createDatePicker:options frame:frame];
+      [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:UIControlEventValueChanged];
+  }else{
+      if(!self.datePicker){
+          self.datePicker = [self createDatePicker:options frame:frame];
+          [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:UIControlEventValueChanged];
+      }
   }
+    
   [self updateDatePicker:options];
   [datePickerView addSubview:self.datePicker];
   
